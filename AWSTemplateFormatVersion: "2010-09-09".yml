@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+    Generator: "former2"
+Description: ""
+Resources:
+    LambdaFunction:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Description: ""
+            FunctionName: "dailyCritHighAlerts"
+            Handler: "lambda_function.lambda_handler"
+            Architectures: 
+              - "x86_64"
+            Code: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-tasks"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/dailyCritHighAlerts-c855fcee-96c2-4f82-80c1-29e3a5b3e2e5"
+                S3ObjectVersion: "aWFeHyDy_hb6KtdSZA1dOufIVCM238KP"
+            MemorySize: 128
+            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/dailyCritHighAlerts-role-wd4tviji"
+            Runtime: "python3.9"
+            Timeout: 10
+            TracingConfig: 
+                Mode: "PassThrough"
+            Layers: 
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:tabulate_layer:1"
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:updated_layer:1"
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:updated2_layer:2"
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:updated3_layer:1"
+            EphemeralStorage: 
+                Size: 512
+
+    LambdaPermission:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction.Arn
+            Principal: "events.amazonaws.com"
+            SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${LambdaFunction}"
+
+    LambdaLayerVersion:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.9"
+            LayerName: "packagedPythonModules"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/packagedPythonModules-3b09fa83-b9f6-497a-ac3a-22a8aa2441bf"
+
+    LambdaLayerVersion2:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.9"
+            LayerName: "updated_layer"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/updated_layer-2a0b9ec7-cca1-4f4a-ba27-68189bf67380"
+
+    LambdaLayerVersion3:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.9"
+            LayerName: "updated2_layer"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/updated2_layer-098f4dfb-933b-441a-96f6-73f34a16b31b"
+
+    LambdaLayerVersion4:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.9"
+            LayerName: "updated3_layer"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/updated3_layer-feef4cab-3867-4161-b96f-b1fbd407a76c"
+
+    LambdaLayerVersion5:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.9"
+            LayerName: "tabulate_layer"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/tabulate_layer-6de11333-9372-4b97-a247-24c74ae85ced"
+
+    LambdaLayerVersion6:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.10"
+              - "python3.9"
+              - "python3.11"
+            LayerName: "updated2_layer"
+            Content: 
+                S3Bucket: !Sub "awslambda-${AWS::Region}-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/updated2_layer-5d3eb1df-3d80-480b-b82a-e76117118cbb"
+
+    SNSTopic:
+        Type: "AWS::SNS::Topic"
+        Properties:
+            DisplayName: ""
+            TopicName: "dailyNotifs"
+
+    SNSTopicPolicy:
+        Type: "AWS::SNS::TopicPolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\"],\"Resource\":\"${SNSTopic}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}}]}"
+            Topics: 
+              - !Ref SNSTopic
+
+    SNSSubscription:
+        Type: "AWS::SNS::Subscription"
+        Properties:
+            TopicArn: !Ref SNSTopic
+            Endpoint: "nalani.st-louis@digital.cabinet-office.gov.uk"
+            Protocol: "email"
+            Region: !Ref AWS::Region
+
