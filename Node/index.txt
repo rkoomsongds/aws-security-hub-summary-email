@@ -1,0 +1,26 @@
+
+This code is a Python Lambda function designed to be used as an AWS CloudFormation custom resource handler. Let's break down the key components:
+
+Imports:
+
+json: This module provides functions for encoding and decoding JSON data.
+boto3: This is the AWS SDK for Python, which allows Python developers to write software that makes use of services like AWS Lambda and AWS Security Hub.
+ClientError: This is an exception class provided by botocore.exceptions. It's used to handle errors raised by AWS clients.
+lambda_handler Function:
+
+This is the entry point for the Lambda function. It receives event and context as parameters, representing the event data passed to the function and the context in which the function is executed, respectively.
+It first checks if the RequestType in the event is 'Delete'. If so, it calls the send_response function with the status "SUCCESS" and returns early.
+It initializes an empty dictionary responseData to hold response data and extracts the insightID from the ResourceProperties of the event.
+It creates a securityhub client using boto3.client() to interact with AWS Security Hub.
+It defines a list params containing dictionaries, each representing parameters for creating different types of insights in Security Hub.
+It then tries to create an insight using the parameters specified by params[index] (where index is the insightID). If successful, it retrieves the ARN of the created insight from the response and sends a success response using the send_response function. If an error occurs (handled using ClientError), it sends a failure response.
+send_response Function:
+
+This function sends a response back to AWS CloudFormation, indicating the status of the custom resource creation process.
+It takes parameters event, context, responseStatus, and responseData.
+It constructs a response body containing various metadata such as status, reason, resource IDs, and response data.
+It converts the response body to a JSON string using json.dumps().
+It constructs HTTP headers for the response.
+It makes an HTTP PUT request to the ResponseURL provided in the event data, passing the JSON response body and headers.
+If the request succeeds, it prints the response status code. If it fails, it prints an error message.
+Overall, this Lambda function is responsible for creating insights in AWS Security Hub based on the parameters provided in the CloudFormation template and sending back the status of the resource creation process to CloudFormation.
