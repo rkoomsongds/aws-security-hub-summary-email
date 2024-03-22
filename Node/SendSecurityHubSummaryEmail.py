@@ -62,7 +62,31 @@ def lambda_handler(event, context):
     
     #create boto3 client for Security Hub API calls
     sec_hub_client = boto3.client('securityhub')
+
     
+    
+
+security_hub = boto3.client('securityhub')
+
+def create_custom_insights():
+    # Insights = security_hub.get_insights()
+    # insightList = Insights['Insights']
+
+    # for i in customInsights:
+    #     name = customInsights[i]['name']
+        
+    #     createCustomInsight = True 
+    #     for existingInsight in insightList:
+    #         if name in existingInsight['Name']:
+    #             createCustomInsight = False
+    #             print(f"Insight {name} already exists, it will not be created")
+    #             break
+            
+    #     if createCustomInsight:
+    #         security_hub.create_insight(Name=customInsights[i]['name'], Filters=customInsights[i]['filter'], GroupByAttribute=customInsights[i]['GroupByAttribute'])
+        
+    #create insights - Code from Steve
+
     #for each custom insight get results and format for email
     i = 0
     while i < len(insightArns):
